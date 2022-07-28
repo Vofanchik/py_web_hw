@@ -1,14 +1,22 @@
-import requests
-from pprint import pprint
-
-r = requests.get('http://127.0.0.1:5000/advertisment/'#,
-
-                  # json={
-                  #     'title':'garaj',
-                  #     'description': 'prodam',
-                  #     'author': 'petuh'
-                  # }
-                 )
+# import requests
+# from pprint import pprint
+#
+# r = requests.get('http://127.0.0.1:5000/advertisment/4',
+#
+#                   json={
+#                       'title':'1',
+#                       'description': '2',
+#                       'author': '3'
+#                   }
+#                  )
 
 # r = requests.delete('http://127.0.0.1:5000/advertisment/1')
-pprint(r.text)
+# r = requests.patch('http://127.0.0.1:5000/advertisment/4',
+#                   json={
+#                       'title': '1',
+#                       'description': '2',
+#                       'author': '3'
+#                   }
+#                  )
+
+# pprint(r.json())

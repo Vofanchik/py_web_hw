@@ -4,9 +4,6 @@ from sqlalchemy import create_engine, Column, Integer, String, DateTime, func
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from flask.views import MethodView
-from flask_bcrypt import Bcrypt
-from pydantic import BaseModel, EmailStr, validator, ValidationError
-import re
 
 engine = create_engine('sqlite:///advertisement.db', echo=True)
 
@@ -23,7 +20,7 @@ class HttpError(Exception):
 
 
 class Advertisment(Base):
-    __tablename__ = 'users'
+    __tablename__ = 'advertisments'
     id = Column(Integer, primary_key=True)
     title = Column(String, nullable=False)
     description = Column(String, nullable=False)
@@ -78,35 +75,60 @@ class AdverView(MethodView):
             except:
                 raise HttpError(400, 'some error')
 
-    def delete(self, adv_id):
-        json_data = request.json
-        with Session() as session:
-            advert = session.query(Advertisment).get({adv_id})
-            # session.add(advert)
-            try:
-                session.commit()
-                return jsonify({
-                    'id': advert.id,
-                    'reg_time': advert.reg_time.isoformat(),
-                    'title': advert.title
-                })
-            except:
-                pass
+
+
+@app.route('/advertisment/<int:adv_id>', methods=['DELETE'])
+def delete(adv_id):
+    with Session() as session:
+        advert = session.query(Advertisment).get(adv_id)
+        try:
+            session.delete(advert)
+            session.commit()
+            return jsonify({
+                'id': advert.id,
+                'title': advert.title
+
+            },{'status' : 'delete success'})
+        except:
+            raise HttpError(400, '''id isn't exist''')
+
+@app.route('/advertisment/<int:adv_id>', methods=['PATCH'])
+def patch(adv_id):
+    json_data = request.json
+    with Session() as session:
+        session.query(Advertisment).filter_by(id = adv_id).update(json_data)
+        try:
+            session.commit()
+            adver = session.query(Advertisment).get(adv_id)
+            return jsonify({
+                'id': adver.id,
+                'title': adver.title,
+                'description': adver.description,
+                'author': adver.author,
+            }, {'status': 'update success'})
+        except:
+            raise HttpError(400, '''id isn't exist''')
+
+@app.route('/advertisment/<int:adv_id>', methods=['GET'])
+def get(adv_id):
+    with Session() as session:
+        try:
+            session.commit()
+            adver = session.query(Advertisment).get(adv_id)
+            return jsonify({
+                'id': adver.id,
+                'title': adver.title,
+                'description': adver.description,
+                'author': adver.author,
+            })
+        except:
+            raise HttpError(400, '''id isn't exist''')
 
 
 
-# @flask.route('/test/', methods=['POST'])
-# def test():
-#     json_data = request.json
-#     headers = request.headers
-#     qs = request.args
-#
-#     return jsonify({'status':'ok',
-#                     'json_data': json_data,
-#                     'headers': dict(headers),
-#                     'qs': dict(qs)})
 
-app.add_url_rule('/advertisment/', view_func=AdverView.as_view('create_adver'), methods=['POST', 'GET', 'DELETE'])
+
+app.add_url_rule('/advertisment/', view_func=AdverView.as_view('create_adver'), methods=['POST', 'GET'])
 app.run(
     host='0.0.0.0',
     port=5000
