@@ -1,0 +1,8 @@
+flask
+requests
+psycopg2-binary
+sqlalchemy
+flask_bcrypt
+pydantic
+email-validator
+
