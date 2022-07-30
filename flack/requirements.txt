@@ -6,4 +6,5 @@ flask_bcrypt
 pydantic
 email-validator
 aiohttp
-
+more_itertools
+aiosqlite
