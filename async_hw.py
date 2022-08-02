@@ -36,11 +36,9 @@ class StarWarsPerson(BaseModel):
     vehicles = Column(String)
 
 
-async def init_async_session(drop=False, create=False):
+async def init_async_session(c):
     async with engine.begin() as conn:
-        if drop:
-            await conn.run_sync(BaseModel.metadata.drop_all)
-        if create:
+        if c:
             await conn.run_sync(BaseModel.metadata.create_all)
     async_session_maker = sessionmaker(
         engine, expire_on_commit=False, class_=AsyncSession
@@ -81,7 +79,7 @@ async def parse_response(response_json, session):
 
 async def insert(session, *param):
     res = [await parse_response(person, session) for person in param]
-    session = await init_async_session(False, False)
+    session = await init_async_session(False)
     async with session() as db:
         for pers_data in res:
             if 'detail' in pers_data:
@@ -95,7 +93,7 @@ async def main():
     response_json = requests.get(URL).json()
     person_count = response_json['count']
 
-    await init_async_session(True, True)
+    await init_async_session(True)
 
     async with aiohttp.ClientSession() as session:
         person_coros = (
